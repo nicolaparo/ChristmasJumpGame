@@ -1,0 +1,21 @@
+﻿@using Blazor.Extensions.Canvas
+@using Blazor.Extensions
+@using ChristmasJumpGame.Engine.Abstractions
+
+@foreach (var asset in assets)
+{
+    if (asset is IImageGameAsset imageGameAsset)
+    {
+        <img src="@asset.Source" @ref=imageGameAsset.ElementReference style="display:none;" loading="eager" />
+    }
+}
+
+<div style="border: 1px solid black;display: inline-block;" tabindex="0"
+@ref=canvasContainer
+     @onmousemove="OnMouseMove"
+     @onmousedown="OnMouseDown"
+     @onmouseup="OnMouseUp"
+     @onkeydown="OnKeyDown"
+     @onkeyup="OnKeyUp">
+    <BECanvas @ref=canvas Width="Width" Height="Height" />
+</div>
