@@ -11,17 +11,11 @@ using System.Threading.Tasks;
 namespace ChristmasJumpGame.Components
 {
 
-    public partial class GameView(IJSRuntime js, IEnumerable<IGameAsset> assets, ILogger<GameView> logger) : IGameView
+    public partial class GameView(IJSRuntime js, IEnumerable<IGameAsset> assets)
     {
         private BECanvasComponent? canvas;
         private RenderingContext? context;
         private ElementReference canvasContainer;
-
-        [Parameter]
-        public long Width { get; set; } = 800;
-
-        [Parameter]
-        public long Height { get; set; } = 600;
 
         [Parameter]
         public Game? Game { get; set; }
@@ -68,6 +62,7 @@ namespace ChristmasJumpGame.Components
             await context.EndBatchAsync();
             frameCount++;
 
+            StateHasChanged();
         }
 
         private void OnMouseMove(MouseEventArgs mouseEventArgs) => Game.OnMouseMove(mouseEventArgs);

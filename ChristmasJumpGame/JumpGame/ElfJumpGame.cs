@@ -3,132 +3,77 @@ using ChristmasJumpGame.Engine;
 
 namespace ChristmasJumpGame.JumpGame
 {
-    public class Level(int tilesWidth, int tilesHeight)
-    {
-        public Tile[][] Tiles { get; } = Enumerable.Range(0, tilesHeight)
-            .Select(_ => Enumerable.Range(0, tilesWidth).Select(_ => Tile.Block).ToArray())
-            .ToArray();
-
-        public int TilesWidth { get; } = tilesWidth;
-        public int TilesHeight { get; } = tilesHeight;
-
-        public Tile GetTileAt(int x, int y)
-        {
-            if (x < 0 || x >= TilesWidth || y < 0 || y >= TilesHeight)
-                return Tile.Block;
-            return Tiles[y][x];
-        }
-
-        public void SetTileAt(int x, int y, Tile tile)
-        {
-            if (x < 0 || x >= TilesWidth || y < 0 || y >= TilesHeight)
-                return;
-            Tiles[y][x] = tile;
-        }
-    }
-    public enum Tile
-    {
-        None,
-        Block,
-    }
-
     public record BoxImage() : ImageAsset("/res/box.png", 32, 32);
+    public record PlayerSprite() : SpriteAsset("/res/elf-green.png", 48, 48, 4, 4, 24, 24);
+    public record TilesetImage() : ImageAsset("/res/tileset.png");
 
-    public class ElfJumpGame(IServiceProvider serviceProvider
-        , BoxImage boxImage) : Game(serviceProvider)
+    public class ElfJumpGame : Game
     {
-        private long hue = 0;
-
-        private string level = """
-            #####################
-            #                   #
-            #                   #
-            #                   #
-            #####################
-            #####################
-            #####################
-            #####################
-            #####################
-            #####################
-            #####################
-            """;
-
         private GameObject? player;
+        private readonly LevelRepository levelRepository;
+        private readonly TilesetImage tileset;
+
+        public ElfJumpGame(IServiceProvider serviceProvider, LevelRepository levelRepository, TilesetImage tileset) : base(serviceProvider)
+        {
+            this.levelRepository = levelRepository;
+            this.tileset = tileset;
+            this.RoomWidth = 4800;
+        }
+
+        public Level Level { get; private set; }
 
         public override async ValueTask OnStartAsync()
         {
-
+            Level = await levelRepository.LoadLevelAsync("level1");
             player = InstanceCreate<Player>();
-        }
-
-        public override async ValueTask OnDrawAsync(Canvas2DContext context)
-        {
-            await context.SetFillStyleAsync($"hsl({hue++}, 100%, 50%)");
-            await context.FillRectAsync(0, 0, 800, 600);
-
-            var rows = level.Split('\n');
-
-            for (int y = 0; y < rows.Length; y++)
-            {
-                var row = rows[y];
-                for (int x = 0; x < row.Length; x++)
-                {
-                    var ch = row[x];
-                    if (ch == '#')
-                    {
-                        await context.DrawImageAsync(boxImage, x * 32, y * 32);
-                    }
-                }
-            }
-
-            await context.SetFillStyleAsync("white");
-            await context.FillRectAsync(MouseX - 20, MouseY - 20, 40, 40);
-
-            hue %= 360;
-        }
-    }
-
-    public static class KeyboardKey
-    {
-        public const string ArrowLeft = "ArrowLeft";
-        public const string ArrowRight = "ArrowRight";
-        public const string ArrowUp = "ArrowUp";
-        public const string ArrowDown = "ArrowDown";
-        public const string Space = "Space";
-    }
-
-    public record PlayerSprite() : SpriteAsset("/res/box.png", 32, 32);
-
-    public class Player(ElfJumpGame game, PlayerSprite sprite) : GameObject(game)
-    {
-        public override void OnCreate()
-        {
-            X = 800 / 2;
-            Y = 600 / 2;
-            Sprite = sprite;
         }
 
         public override async ValueTask OnStepAsync()
         {
+            if (player is null)
+                return;
 
-            if (game.KeyboardCheck(KeyboardKey.ArrowLeft))
-                X--;
+            ViewX = (int)player.X - ViewWidth / 2;
 
-            if (game.KeyboardCheck(KeyboardKey.ArrowRight))
-                X++;
+            if (ViewX < 0)
+                ViewX = 0;
 
-            if (game.KeyboardCheck(KeyboardKey.ArrowUp))
-                Y--;
+            if (ViewX > RoomWidth - ViewWidth)
+                ViewX = RoomWidth - ViewWidth;
+        }
 
-            if (game.KeyboardCheck(KeyboardKey.ArrowDown))
-                Y++;
-
-            if (game.KeyboardCheckPressed("Space"))
+        public override async ValueTask OnDrawAsync(Canvas2DContext context)
+        {
+            foreach (var layer in Level.Tiles.Keys.OrderBy(k => k))
             {
-                VSpeed = -5;
+                foreach (var tile in Level.GetTiles(layer))
+                {
+                    var sx = (tile.Id % 6) * 32;
+                    var sy = (tile.Id / 6) * 32;
+                    var dx = tile.X * 32;
+                    var dy = tile.Y * 32;
+
+                    if (dx + 32 < ViewX || dx > ViewX + ViewWidth || dy + 32 < ViewY || dy > ViewY + ViewHeight)
+                        continue;
+
+                    await context.DrawImageAsync(tileset.ElementReference, sx, sy, 32, 32, dx, dy, 32, 32);
+                }
             }
         }
 
+
+        private int GetTileAt(float x, float y)
+        {
+            return Level.GetTileAt(LevelLayer.Level, (int)x / 32, (int)y / 32);
+        }
+
+        public override bool IsSolidAt(float x, float y)
+        {
+            if (base.IsSolidAt(x, y))
+                return true;
+
+            return GetTileAt(x, y) != TileIds.None;
+        }
     }
 
 

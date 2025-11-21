@@ -1,5 +1,8 @@
-﻿namespace ChristmasJumpGame.Engine
+﻿using System.Diagnostics;
+
+namespace ChristmasJumpGame.Engine
 {
+    [DebuggerDisplay("{ToRadians()} rad | {ToDegrees()}°")]
     public readonly struct Angle : IEquatable<Angle>, IComparable<Angle>
     {
         public static readonly Angle Zero = new Angle(0);

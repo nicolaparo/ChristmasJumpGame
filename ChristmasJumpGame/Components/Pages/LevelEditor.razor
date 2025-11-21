@@ -1,39 +1,152 @@
 ﻿@page "/editor"
 @using ChristmasJumpGame.JumpGame
 
-<div style="overflow-y: auto">
-	<div style="position: relative; width: @(level.TilesWidth * 32)px; height: @(level.TilesHeight * 32)px">
-		@for (var y = 0; y < level.TilesHeight; y++)
-		{
-			@for (var x = 0; x < level.TilesWidth; x++)
-			{
-				var xx = x;
-				var yy = y;
+<div class="d-flex gap-2">
 
-				<div style="position: absolute; left: @(xx * 32)px; top: @(yy * 32)px; width:32px; height:32px;
-					border:1px solid black; text-align:center; vertical-align:middle;"
-					 @onclick="() => OnTileClicked(xx, yy)">
-					@if (level.GetTileAt(x, y) is Tile.Block)
-					{
-						<img src="@Assets["/res/box.png"]" />
-					}
-				</div>
+	<div class="d-flex flex-column overflow-auto gap-2 flex-shrink-0">
+
+		<div>
+			<button type="button" class="btn btn-secondary @(selectedTileIndex is TileIds.None ? "active" : "")"
+					@onclick="() => selectedTileIndex = TileIds.None">
+				<i class="fas fa-eraser" />
+			</button>
+		</div>
+
+		<div style="position: relative; width: @(6 * 32)px; height: @(6 * 32)px" class="flex-shrink-0">
+			<img src="@Assets["/res/tileset.png"]" />
+			@for (var y = 0; y < 6; y++)
+			{
+				@for (var x = 0; x < 6; x++)
+				{
+					var index = y * 6 + x;
+
+					<div class="tilemap-tile @(selectedTileIndex == index ? "selected" : "")" style="left: @(x * 32)px; top: @(y * 32)px;"
+						 @onclick="() => OnTileSelected(index)">
+					</div>
+				}
 			}
-		}
+		</div>
+	</div>
+
+	<div class="d-flex flex-column overflow-auto gap-2">
+
+		<div class="d-flex gap-2">
+			<button type="button" class="btn btn-secondary" @onclick="OnNewLevelClickedAsync">
+				<i class="fas fa-file"></i>
+			</button>
+
+			<button type="button" class="btn btn-secondary" @onclick="OnSaveLevelClickedAsync">
+				<i class="fas fa-save"></i>
+			</button>
+			<div class="input-group" style="width:200px">
+				<select class="form-control" @bind="selectedLevelToLoad">
+					<option value=""></option>
+					@foreach (var levelId in repository.GetLevels())
+					{
+						<option value="@levelId" selected="@(levelId == level.Name)">@levelId</option>
+					}
+				</select>
+			<button type="button" class="btn btn-secondary" @onclick="OnLoadLevelClickedAsync">
+				<i class="fas fa-folder-open"></i>
+				</button>
+			</div>
+
+			<div class="vertical-separator" />
+
+			<button type="button" class="btn btn-secondary" @onclick="OnShowGridClicked" title="Show Grid on / off">
+				@if (showGrid)
+				{
+					<i class="fas fa-border-none"></i>
+				}
+				else
+				{
+					<i class="fas fa-border-all"></i>
+				}
+			</button>
+		</div>
+
+		<div class="d-flex gap-2">
+			<div>
+				<label>Level Name</label>
+				<input type="text" class="form-control" @bind="@level.Name" />
+			</div>
+			<div>
+				<label>Size</label>
+				<div class="input-group">
+					<input type="number" min="1" step="1" class="form-control" @bind="@level.TilesWidth" />
+					<input type="number" min="1" step="1" class="form-control" @bind="@level.TilesHeight" />
+				</div>
+			</div>
+		</div>
+
+
+
+		<div style="overflow-y: auto">
+			<div style="position: relative; width: @(level.TilesWidth * 32)px; height: @(level.TilesHeight * 32)px">
+				@for (var y = 0; y < level.TilesHeight; y++)
+				{
+					@for (var x = 0; x < level.TilesWidth; x++)
+					{
+						var xx = x;
+						var yy = y;
+
+						var tileIndex = level.GetTileAt(selectedLayer, xx, yy);
+						var tileX = tileIndex % 6;
+						var tileY = tileIndex / 6;
+
+						<div class="level-tile" style="left: @(xx * 32)px; top: @(yy * 32)px; --x: @(tileX); --y: @(tileY);"
+							 @onmousedown="() => OnLevelTileClicked(xx, yy)"
+							 @onmouseenter="(e) => { if (e.Buttons > 0) OnLevelTileClicked(xx, yy); }">
+						</div>
+					}
+				}
+			</div>
+		</div>
 	</div>
 </div>
 
-@code {
+<style>
 
-	private Level level = new(80, 16);
-
-	private void OnTileClicked(int x, int y)
-	{
-		var tile = level.GetTileAt(x, y);
-		if (tile is Tile.Block)
-			level.SetTileAt(x, y, Tile.None);
-		else
-			level.SetTileAt(x, y, Tile.Block);
+	.vertical-separator {
+		margin: 0 1rem;
+		color: inherit;
+		border: 0;
+		border-left: var(--bs-border-width) solid;
+		opacity: .25;
 	}
 
-}
+	.tilemap-tile {
+		width: 32px;
+		height: 32px;
+		position: absolute;
+		border: 1px solid #0004;
+	}
+
+		.tilemap-tile:hover {
+			border: 2px solid blue;
+		}
+
+		.tilemap-tile.selected {
+			border: 2px solid green;
+		}
+
+
+	.level-tile {
+		width: 32px;
+		height: 32px;
+		background-image: url('@Assets["/res/tileset.png"]');
+		background-position: calc(var(--x) * -32px) calc(var(--y) * -32px);
+		background-repeat: no-repeat;
+		overflow: hidden;
+		position: absolute;
+		border: 1px solid #0004;
+	}
+
+		.level-tile:hover {
+			border: 2px solid blue;
+		}
+
+</style>
+
+
+

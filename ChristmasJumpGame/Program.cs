@@ -13,6 +13,8 @@ namespace ChristmasJumpGame
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            builder.Services.AddSingleton(new LevelRepository(new DirectoryInfo("Levels")));
+
             builder.Services.RegisterJumpGameAssets();
 
             var app = builder.Build();

@@ -9,7 +9,6 @@ namespace ChristmasJumpGame.Engine
 {
     public class Game(IServiceProvider serviceProvider) : GameEntity
     {
-        private readonly ILogger<Game> logger = serviceProvider.GetRequiredService<ILogger<Game>>();
         public virtual ValueTask OnStartAsync() => ValueTask.CompletedTask;
 
         private readonly List<GameObject> instances = [];
@@ -50,8 +49,9 @@ namespace ChristmasJumpGame.Engine
                 await Execute2DAsync(canvas2DContext);
 
             await OnStepAsync();
-            foreach (var obj in instances)
-                await obj.ExecuteStepAsync();
+
+            for (var i = 0; i < instances.Length; i++)
+                await instances[i].ExecuteStepAsync();
 
             foreach (var button in mousePressed.Keys)
                 previousMousePessed[button] = mousePressed[button];
@@ -62,11 +62,19 @@ namespace ChristmasJumpGame.Engine
         public TimeSpan DeltaTime { get; private set; }
 
         public int InstanceCount => instances.Count;
-  
+
         public float MouseX { get; private set; }
         public float MouseY { get; private set; }
         public float PreviousMouseX { get; private set; }
         public float PreviousMouseY { get; private set; }
+
+        public int RoomWidth { get; init; } = 480;
+        public int RoomHeight { get; init; } = 320;
+
+        public int ViewWidth { get; set; } = 480;
+        public int ViewHeight { get; set; } = 320;
+        public int ViewX { get; set; }
+        public int ViewY { get; set; }
 
         private MouseEventArgs? lastMouseMoveEventArgs;
 
@@ -79,8 +87,15 @@ namespace ChristmasJumpGame.Engine
 
         private readonly Dictionary<string, bool> keyboardPressed = new();
         private readonly Dictionary<string, bool> previousKeyboardPressed = new();
-        internal void OnKeyDown(KeyboardEventArgs keyboardEventArgs) => keyboardPressed[keyboardEventArgs.Code] = true;
-        internal void OnKeyUp(KeyboardEventArgs keyboardEventArgs) => keyboardPressed[keyboardEventArgs.Code] = false;
+        internal void OnKeyDown(KeyboardEventArgs keyboardEventArgs)
+        {
+            keyboardPressed[keyboardEventArgs.Code] = true;
+        }
+
+        internal void OnKeyUp(KeyboardEventArgs keyboardEventArgs)
+        {
+            keyboardPressed[keyboardEventArgs.Code] = false;
+        }
 
         public bool MouseCheckButton(MouseButton button)
         {
@@ -136,5 +151,7 @@ namespace ChristmasJumpGame.Engine
                 return false;
             return !previousPressed && pressed;
         }
+
+        public virtual bool IsSolidAt(float x, float y) => false;
     }
 }

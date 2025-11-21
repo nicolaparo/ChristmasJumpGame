@@ -1,10 +1,18 @@
 ﻿using ChristmasJumpGame.Engine.Abstractions;
 using Microsoft.AspNetCore.Components;
+using SixLabors.ImageSharp;
 
 namespace ChristmasJumpGame.Engine
 {
     public abstract record ImageAsset : IImageGameAsset
     {
+        public ImageAsset(string source)
+        {
+            var image = Image.Load($"wwwroot{source}");
+            Width = image.Width;
+            Height = image.Height;
+            Source = source;
+        }
         public ImageAsset(string source, int width, int height)
         {
             Source = source;

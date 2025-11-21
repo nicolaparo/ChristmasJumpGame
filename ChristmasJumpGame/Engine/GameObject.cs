@@ -2,57 +2,21 @@
 
 namespace ChristmasJumpGame.Engine
 {
-
-    
-
     public class GameObject(Game game) : GameEntity
     {
         public SpriteAsset? Sprite { get; set; }
+        public BoundingBox? BoundingBox { get; set; }
 
         private float imageIndex;
         public int ImageIndex { get => (int)imageIndex; set => imageIndex = value; }
-        public float ImageSpeed { get; set; }
+        public float ImageSpeed { get; set; } = 1;
 
         public float X { get; set; }
         public float Y { get; set; }
         public float VSpeed { get; set; }
         public float HSpeed { get; set; }
-        public float Speed
-        {
-            get => MathF.Sqrt(VSpeed * VSpeed + HSpeed * HSpeed);
-            set
-            {
-                (VSpeed, HSpeed) = (-Direction.Sin() * value, Direction.Cos() * value);
-            }
-        }
-        public Angle Direction
-        {
-            get => Angle.Atan2(VSpeed, HSpeed);
-            set
-            {
-                var speed = Speed;
-                (VSpeed, HSpeed) = (-value.Sin() * speed, value.Cos() * speed);
-            }
-        }
-        public float VGravity { get; set; }
-        public float HGravity { get; set; }
-        public float Gravity
-        {
-            get => MathF.Sqrt(VGravity * VGravity + HGravity * HGravity);
-            set
-            {
-                (VGravity, HGravity) = (-GravityDirection.Sin() * value, GravityDirection.Cos() * value);
-            }
-        }
-        public Angle GravityDirection
-        {
-            get => Angle.Atan2(VGravity, HGravity);
-            set
-            {
-                var gravity = Gravity;
-                (VGravity, HGravity) = (-value.Sin() * gravity, value.Cos() * gravity);
-            }
-        }
+        public float VAcceleration { get; set; }
+        public float HAcceleration { get; set; }
 
         public Game Game { get; } = game;
 
@@ -65,17 +29,113 @@ namespace ChristmasJumpGame.Engine
                 imageIndex = (imageIndex + ImageSpeed) % Sprite.ImageCount;
             }
 
-            X += HSpeed;
-            Y += VSpeed;
+            MoveContactSolid(HSpeed, VSpeed);
 
-            HSpeed += HGravity;
-            VSpeed += VGravity;
+            //X += HSpeed;
+            //Y += VSpeed;
+            
+            HSpeed += HAcceleration;
+            VSpeed += VAcceleration;
+
         }
 
         public override async ValueTask OnDrawAsync(Canvas2DContext context)
         {
             if (Sprite is not null)
                 await context.DrawSpriteAsync(Sprite, ImageIndex, X, Y);
+        }
+
+        public bool IsPointEmpty(float x, float y) => !game.IsSolidAt(x, y);
+        public bool IsPointFree(float x, float y)
+        {
+            if (BoundingBox is null)
+                return true;
+
+            return IsPointEmpty(x + BoundingBox.X, y + BoundingBox.Y) &&
+                   IsPointEmpty(x + BoundingBox.X + BoundingBox.Width - 1, y + BoundingBox.Y) &&
+                   IsPointEmpty(x + BoundingBox.X, y + BoundingBox.Y + BoundingBox.Height - 1) &&
+                   IsPointEmpty(x + BoundingBox.X + BoundingBox.Width - 1, y + BoundingBox.Y + BoundingBox.Height - 1);
+        }
+        public bool MouseCheckButton(MouseButton button) => Game.MouseCheckButton(button);
+        public bool MouseCheckButtonReleased(MouseButton button) => Game.MouseCheckButtonReleased(button);
+        public bool MouseCheckButtonPressed(MouseButton button) => Game.MouseCheckButtonPressed(button);
+
+        public bool KeyboardCheck(string key) => Game.KeyboardCheck(key);
+        public bool KeyboardCheckReleased(string key) => Game.KeyboardCheckReleased(key);
+        public bool KeyboardCheckPressed(string key) => Game.KeyboardCheckPressed(key);
+
+        public bool MoveOutsideSolid(float deltaX, float deltaY, float resolution = 1f)
+        {
+            var direction = Angle.Atan2(-deltaY, deltaX);
+            var distance = MathF.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            return MoveOutsideSolid(direction, distance, resolution);
+        }
+        public bool MoveContactSolid(float deltaX, float deltaY, float resolution = 1f)
+        {
+            var direction = Angle.Atan2(-deltaY, deltaX);
+            var distance = MathF.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            return MoveContactSolid(direction, distance, resolution);
+        }
+
+        public bool MoveOutsideSolid(Angle direction, float maxDistance, float resolution = 1f)
+        {
+            float incrementX = direction.Cos();
+            float incrementY = -direction.Sin();
+            var (newX, newY) = (X, Y);
+            var distance = 0f;
+            while (distance <= maxDistance)
+            {
+                newX = X + incrementX * distance;
+                newY = Y + incrementY * distance;
+                if (IsPointFree(newX, newY))
+                    break;
+                distance += resolution;
+            }
+            if (distance <= 0)
+                return false;
+            if (distance > maxDistance)
+            {
+                distance = maxDistance;
+                newX = X + incrementX * distance;
+                newY = Y + incrementY * distance;
+            }
+            X = newX;
+            Y = newY;
+            return true;
+        }
+
+        public bool MoveContactSolid(Angle direction, float maxDistance, float resolution = 1f)
+        {
+            float incrementX = direction.Cos();
+            float incrementY = -direction.Sin();
+
+            var (newX, newY) = (X, Y);
+
+            var distance = 0f;
+            while (distance <= maxDistance)
+            {
+                newX = X + incrementX * distance;
+                newY = Y + incrementY * distance;
+
+                if (!IsPointFree(newX, newY))
+                    break;
+
+                distance += resolution;
+            }
+            if (distance <= 0)
+                return false;
+
+            if (distance > maxDistance)
+            {
+                distance = maxDistance;
+                newX = X + incrementX * distance;
+                newY = Y + incrementY * distance;
+            }
+
+            X = newX;
+            Y = newY;
+
+            return true;
         }
     }
 }
