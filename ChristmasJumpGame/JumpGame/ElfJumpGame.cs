@@ -3,6 +3,34 @@ using ChristmasJumpGame.Engine;
 
 namespace ChristmasJumpGame.JumpGame
 {
+    public class Level(int tilesWidth, int tilesHeight)
+    {
+        public Tile[][] Tiles { get; } = Enumerable.Range(0, tilesHeight)
+            .Select(_ => Enumerable.Range(0, tilesWidth).Select(_ => Tile.Block).ToArray())
+            .ToArray();
+
+        public int TilesWidth { get; } = tilesWidth;
+        public int TilesHeight { get; } = tilesHeight;
+
+        public Tile GetTileAt(int x, int y)
+        {
+            if (x < 0 || x >= TilesWidth || y < 0 || y >= TilesHeight)
+                return Tile.Block;
+            return Tiles[y][x];
+        }
+
+        public void SetTileAt(int x, int y, Tile tile)
+        {
+            if (x < 0 || x >= TilesWidth || y < 0 || y >= TilesHeight)
+                return;
+            Tiles[y][x] = tile;
+        }
+    }
+    public enum Tile
+    {
+        None,
+        Block,
+    }
 
     public record BoxImage() : ImageAsset("/res/box.png", 32, 32);
 

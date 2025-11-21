@@ -1,0 +1,39 @@
+﻿@page "/editor"
+@using ChristmasJumpGame.JumpGame
+
+<div style="overflow-y: auto">
+	<div style="position: relative; width: @(level.TilesWidth * 32)px; height: @(level.TilesHeight * 32)px">
+		@for (var y = 0; y < level.TilesHeight; y++)
+		{
+			@for (var x = 0; x < level.TilesWidth; x++)
+			{
+				var xx = x;
+				var yy = y;
+
+				<div style="position: absolute; left: @(xx * 32)px; top: @(yy * 32)px; width:32px; height:32px;
+					border:1px solid black; text-align:center; vertical-align:middle;"
+					 @onclick="() => OnTileClicked(xx, yy)">
+					@if (level.GetTileAt(x, y) is Tile.Block)
+					{
+						<img src="@Assets["/res/box.png"]" />
+					}
+				</div>
+			}
+		}
+	</div>
+</div>
+
+@code {
+
+	private Level level = new(80, 16);
+
+	private void OnTileClicked(int x, int y)
+	{
+		var tile = level.GetTileAt(x, y);
+		if (tile is Tile.Block)
+			level.SetTileAt(x, y, Tile.None);
+		else
+			level.SetTileAt(x, y, Tile.Block);
+	}
+
+}
