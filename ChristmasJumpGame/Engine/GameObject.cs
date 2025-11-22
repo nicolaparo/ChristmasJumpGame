@@ -3,7 +3,7 @@ using ChristmasJumpGame.Engine.Assets;
 
 namespace ChristmasJumpGame.Engine
 {
-    public abstract class GameObject(Game game) : GameEntity
+    public abstract class GameObject(Game game) : GameEntity(game)
     {
         public SpriteAsset? Sprite { get; set; }
         public BoundingBox? BoundingBox { get; set; }
@@ -43,6 +43,8 @@ namespace ChristmasJumpGame.Engine
             if (Sprite is not null)
                 await context.DrawSpriteAsync(Sprite, ImageIndex, X, Y);
         }
+
+        public void InstanceDestroy() => game.InstanceDestroy(this);
 
         public bool IsPointEmpty(float x, float y) => !game.IsSolidAt(x, y);
         public bool IsPointFree(float x, float y)
@@ -148,21 +150,6 @@ namespace ChristmasJumpGame.Engine
             return true;
         }
 
-        public sealed override bool MouseCheckButton(MouseButton button) => Game.MouseCheckButton(button);
-        public sealed override bool MouseCheckButtonReleased(MouseButton button) => Game.MouseCheckButtonReleased(button);
-        public sealed override bool MouseCheckButtonPressed(MouseButton button) => Game.MouseCheckButtonPressed(button);
-
-        public sealed override bool KeyboardCheck(string key) => Game.KeyboardCheck(key);
-        public sealed override bool KeyboardCheckReleased(string key) => Game.KeyboardCheckReleased(key);
-        public sealed override bool KeyboardCheckPressed(string key) => Game.KeyboardCheckPressed(key);
-
-        public sealed override IEnumerable<Guid> GetControllerInputDevices() => Game.GetControllerInputDevices();
-
-        public sealed override bool ControllerInputCheck(Guid controller, string inputId) => Game.ControllerInputCheck(controller, inputId);
-        public sealed override bool ControllerInputCheckPressed(Guid controller, string inputId) => Game.ControllerInputCheckPressed(controller, inputId);
-        public sealed override bool ControllerInputCheckReleased(Guid controller, string inputId) => Game.ControllerInputCheckReleased(controller, inputId);
-        public sealed override bool ControllerInputCheckAny(string inputId) => Game.ControllerInputCheckAny(inputId);
-        public sealed override bool ControllerInputCheckAnyPressed(string inputId) => Game.ControllerInputCheckAnyPressed(inputId);
-        public sealed override bool ControllerInputCheckAnyReleased(string inputId) => Game.ControllerInputCheckAnyReleased(inputId);
+        
     }
 }

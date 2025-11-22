@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace ChristmasJumpGame.Engine
 {
-    public class Game(IServiceProvider serviceProvider) : GameEntity
+    public class Game(IServiceProvider serviceProvider) : GameEntity(null!)
     {
         public virtual ValueTask OnStartAsync() => ValueTask.CompletedTask;
 
@@ -17,11 +17,11 @@ namespace ChristmasJumpGame.Engine
 
         public IEnumerable<GameObject> Instances => instances;
 
-        public T InstanceCreate<T>() where T : GameObject
+        public sealed override T InstanceCreate<T>()
         {
             return InstanceCreate<T>(0, 0);
         }
-        public T InstanceCreate<T>(float x, float y) where T : GameObject
+        public sealed override T InstanceCreate<T>(float x, float y)
         {
             var instance = ActivatorUtilities.CreateInstance<T>(serviceProvider, this);
             typeof(T).GetProperty(nameof(GameObject.OriginalX))!.SetValue(instance, x);
@@ -32,8 +32,7 @@ namespace ChristmasJumpGame.Engine
             instance.OnCreate();
             return instance;
         }
-
-        public void InstanceDestroy<T>(T instance) where T : GameObject
+        public sealed override void InstanceDestroy<T>(T instance)
         {
             instances.Remove(instance);
         }

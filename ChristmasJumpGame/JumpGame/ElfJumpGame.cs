@@ -98,7 +98,7 @@ namespace ChristmasJumpGame.JumpGame
             if (tileId is TileIds.None)
                 return false;
 
-            if (tileId is 16)
+            if (tileId is 16 or 24 or 30)
                 return false;
 
             return true;
