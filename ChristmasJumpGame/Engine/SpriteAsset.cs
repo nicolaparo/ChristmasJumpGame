@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ChristmasJumpGame.Engine
 {
+
     public abstract record SpriteAsset : ImageAsset, IGameAsset
     {
         public SpriteAsset(string source, int width, int height, int imageCount, int imagesPerRow, int originX = 0, int originY = 0, int xGap = 0, int yGap = 0, int xOffset = 0, int yOffset = 0)

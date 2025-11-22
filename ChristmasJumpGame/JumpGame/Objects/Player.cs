@@ -1,8 +1,9 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
 using ChristmasJumpGame.Engine;
 
-namespace ChristmasJumpGame.JumpGame
+namespace ChristmasJumpGame.JumpGame.Objects
 {
+
     public class Player(ElfJumpGame game, PlayerSprite sprite) : GameObject(game)
     {
         public override void OnCreate()
@@ -17,6 +18,13 @@ namespace ChristmasJumpGame.JumpGame
 
         public override async ValueTask OnStepAsync()
         {
+            var running = KeyboardCheck(KeyboardKeys.ControlLeft) || ControllerInputCheckAny("RUN");
+            var moveLeft = KeyboardCheck(KeyboardKeys.ArrowLeft) || ControllerInputCheckAny("LEFT");
+            var moveRight = KeyboardCheck(KeyboardKeys.ArrowRight) || ControllerInputCheckAny("RIGHT");
+            var jump = KeyboardCheckPressed(KeyboardKeys.Space) || ControllerInputCheckAnyPressed("JUMP");
+            var holdJump = KeyboardCheck(KeyboardKeys.Space) || ControllerInputCheckAny("JUMP");
+
+            // Gravity and vertical movement
             if (IsPointFree(X, Y + 1))
             {
                 VAcceleration = .8f;
@@ -36,12 +44,19 @@ namespace ChristmasJumpGame.JumpGame
             if (VSpeed >= 10)
                 VSpeed = 10;
 
-            var running = KeyboardCheck(KeyboardKeys.ControlLeft);
+            if (IsCollidingWith<Gift>(out var gifts))
+            {
+                foreach (var gift in gifts)
+                {
+                    Game.InstanceDestroy(gift);
+                }
+            }
+
             var speed = running ? 6 : 4;
 
             ImageSpeed = 0;
 
-            if (KeyboardCheck(KeyboardKeys.ArrowLeft))
+            if (moveLeft)
             {
                 direction = -1;
                 ImageSpeed = .25f;
@@ -50,7 +65,7 @@ namespace ChristmasJumpGame.JumpGame
                     X -= speed;
             }
 
-            if (KeyboardCheck(KeyboardKeys.ArrowRight))
+            if (moveRight)
             {
                 direction = 1;
                 ImageSpeed = .25f;
@@ -62,14 +77,14 @@ namespace ChristmasJumpGame.JumpGame
             if (ImageSpeed == 0)
                 ImageIndex = 0;
 
-            if (KeyboardCheckPressed("Space"))
+            if (jump)
                 if (!IsPointFree(X, Y + 2))
-                    VSpeed = running ? -15 : -12;
+                    VSpeed = -12;
 
             if (IsPointFree(X, Y + 2))
-                if (VSpeed < -3)
-                    if (!KeyboardCheck("Space"))
-                        VSpeed = -3;
+                if (VSpeed < 0)
+                    if (!holdJump)
+                        VSpeed = 0;
 
         }
 

@@ -1,4 +1,5 @@
 using ChristmasJumpGame.Components;
+using ChristmasJumpGame.Engine;
 using ChristmasJumpGame.JumpGame;
 
 namespace ChristmasJumpGame
@@ -13,6 +14,7 @@ namespace ChristmasJumpGame
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            builder.Services.AddSingleton<GameControllerHub>();
             builder.Services.AddSingleton(new LevelRepository(new DirectoryInfo("Levels")));
 
             builder.Services.RegisterJumpGameAssets();

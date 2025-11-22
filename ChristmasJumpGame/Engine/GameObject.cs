@@ -2,7 +2,7 @@
 
 namespace ChristmasJumpGame.Engine
 {
-    public class GameObject(Game game) : GameEntity
+    public abstract class GameObject(Game game) : GameEntity
     {
         public SpriteAsset? Sprite { get; set; }
         public BoundingBox? BoundingBox { get; set; }
@@ -11,6 +11,8 @@ namespace ChristmasJumpGame.Engine
         public int ImageIndex { get => (int)imageIndex; set => imageIndex = value; }
         public float ImageSpeed { get; set; } = 1;
 
+        public float OriginalX { get; init; }
+        public float OriginalY { get; init; }
         public float X { get; set; }
         public float Y { get; set; }
         public float VSpeed { get; set; }
@@ -31,12 +33,8 @@ namespace ChristmasJumpGame.Engine
 
             MoveContactSolid(HSpeed, VSpeed);
 
-            //X += HSpeed;
-            //Y += VSpeed;
-            
             HSpeed += HAcceleration;
             VSpeed += VAcceleration;
-
         }
 
         public override async ValueTask OnDrawAsync(Canvas2DContext context)
@@ -56,6 +54,27 @@ namespace ChristmasJumpGame.Engine
                    IsPointEmpty(x + BoundingBox.X, y + BoundingBox.Y + BoundingBox.Height - 1) &&
                    IsPointEmpty(x + BoundingBox.X + BoundingBox.Width - 1, y + BoundingBox.Y + BoundingBox.Height - 1);
         }
+        
+        public bool IsCollidingWith<T>(out T[]? others) where T : GameObject
+        {
+            others = default;
+            var collidingObjects = game.Instances.OfType<T>().Where(IsCollidingWith).ToArray();
+            if (collidingObjects.Length is 0)
+                return false;
+            others = collidingObjects;
+            return true;
+        }
+        public bool IsCollidingWith(GameObject other)
+        {
+            if (BoundingBox is null || other.BoundingBox is null)
+                return false;
+
+            return !(X + BoundingBox.X + BoundingBox.Width <= other.X + other.BoundingBox.X ||
+                     X + BoundingBox.X >= other.X + other.BoundingBox.X + other.BoundingBox.Width ||
+                     Y + BoundingBox.Y + BoundingBox.Height <= other.Y + other.BoundingBox.Y ||
+                     Y + BoundingBox.Y >= other.Y + other.BoundingBox.Y + other.BoundingBox.Height);
+        }
+
         public bool MouseCheckButton(MouseButton button) => Game.MouseCheckButton(button);
         public bool MouseCheckButtonReleased(MouseButton button) => Game.MouseCheckButtonReleased(button);
         public bool MouseCheckButtonPressed(MouseButton button) => Game.MouseCheckButtonPressed(button);
@@ -64,19 +83,21 @@ namespace ChristmasJumpGame.Engine
         public bool KeyboardCheckReleased(string key) => Game.KeyboardCheckReleased(key);
         public bool KeyboardCheckPressed(string key) => Game.KeyboardCheckPressed(key);
 
+        public IEnumerable<Guid> GetControllerInputDevices() => Game.GetInputDevices();
+
+        public bool ControllerInputCheck(Guid controller, string inputId) => Game.ControllerInputCheck(controller, inputId);
+        public bool ControllerInputCheckPressed(Guid controller, string inputId) => Game.ControllerInputCheckPressed(controller, inputId);
+        public bool ControllerInputCheckReleased(Guid controller, string inputId) => Game.ControllerInputCheckReleased(controller, inputId);
+        public bool ControllerInputCheckAny(string inputId) => Game.ControllerInputCheckAny(inputId);
+        public bool ControllerInputCheckAnyPressed(string inputId) => Game.ControllerInputCheckAnyPressed(inputId);
+        public bool ControllerInputCheckAnyReleased(string inputId) => Game.ControllerInputCheckAnyReleased(inputId);
+
         public bool MoveOutsideSolid(float deltaX, float deltaY, float resolution = 1f)
         {
             var direction = Angle.Atan2(-deltaY, deltaX);
             var distance = MathF.Sqrt(deltaX * deltaX + deltaY * deltaY);
             return MoveOutsideSolid(direction, distance, resolution);
         }
-        public bool MoveContactSolid(float deltaX, float deltaY, float resolution = 1f)
-        {
-            var direction = Angle.Atan2(-deltaY, deltaX);
-            var distance = MathF.Sqrt(deltaX * deltaX + deltaY * deltaY);
-            return MoveContactSolid(direction, distance, resolution);
-        }
-
         public bool MoveOutsideSolid(Angle direction, float maxDistance, float resolution = 1f)
         {
             float incrementX = direction.Cos();
@@ -103,7 +124,12 @@ namespace ChristmasJumpGame.Engine
             Y = newY;
             return true;
         }
-
+        public bool MoveContactSolid(float deltaX, float deltaY, float resolution = 1f)
+        {
+            var direction = Angle.Atan2(-deltaY, deltaX);
+            var distance = MathF.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            return MoveContactSolid(direction, distance, resolution);
+        }
         public bool MoveContactSolid(Angle direction, float maxDistance, float resolution = 1f)
         {
             float incrementX = direction.Cos();

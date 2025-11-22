@@ -10,7 +10,7 @@
 	}
 }
 
-<div style="border: 1px solid black;display: inline-block; position: relative;" tabindex="0"
+<div class="gameview" tabindex="0" @attributes="@Attributes"
 	 @ref=canvasContainer
 	 @onmousemove="OnMouseMove"
 	 @onmousedown="OnMouseDown"
@@ -20,11 +20,28 @@
 
 	@if (Game is not null)
 	{
-		<div style="width: @(Game.ViewWidth)px; height: @(Game.ViewHeight)px; position: relative; overflow: hidden;">
+		<svg viewBox="0 0 @(Game.ViewWidth) @(Game.ViewHeight)">
+			<foreignObject x="0" y="0" width="@(Game.ViewWidth)" height="@(Game.ViewHeight)">
+				<div style="left: @(-Game.ViewX)px; top:@(-Game.ViewY)px; position: absolute; overflow: visible;">
+					<BECanvas @ref=canvas Width="Game.RoomWidth" Height="Game.RoomHeight" />
+				</div>
+			</foreignObject>
+		</svg>
+
+		@* <div style="width: @(Game.ViewWidth)px; height: @(Game.ViewHeight)px; position: relative; overflow: hidden;">
 			<div style="left: @(-Game.ViewX)px; top:@(-Game.ViewY)px; position: absolute; overflow: visible;">
 				<BECanvas @ref=canvas Width="Game.RoomWidth" Height="Game.RoomHeight" />
 			</div>
-		</div>
+		</div> *@
+	}
+</div>
+
+<style>
+	.gameview {
+		outline: none;
 	}
 
-</div>
+		.gameview svg {
+			height: 100%;
+		}
+</style>

@@ -2,6 +2,7 @@
 using Blazor.Extensions.Canvas.Canvas2D;
 using Blazor.Extensions.Canvas.WebGL;
 using ChristmasJumpGame.Engine.Abstractions;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using System.Diagnostics;
 
@@ -11,7 +12,10 @@ namespace ChristmasJumpGame.Engine
     {
         public virtual ValueTask OnStartAsync() => ValueTask.CompletedTask;
 
+        private readonly GameControllerHub controllerHub = serviceProvider.GetRequiredService<GameControllerHub>();
         private readonly List<GameObject> instances = [];
+
+        public IEnumerable<GameObject> Instances => instances;
 
         public T InstanceCreate<T>() where T : GameObject
         {
@@ -20,6 +24,8 @@ namespace ChristmasJumpGame.Engine
         public T InstanceCreate<T>(float x, float y) where T : GameObject
         {
             var instance = ActivatorUtilities.CreateInstance<T>(serviceProvider, this);
+            typeof(T).GetProperty(nameof(GameObject.OriginalX))!.SetValue(instance, x);
+            typeof(T).GetProperty(nameof(GameObject.OriginalY))!.SetValue(instance, y);
             instance.X = x;
             instance.Y = y;
             instances.Add(instance);
@@ -57,6 +63,7 @@ namespace ChristmasJumpGame.Engine
                 previousMousePessed[button] = mousePressed[button];
             foreach (var key in keyboardPressed.Keys)
                 previousKeyboardPressed[key] = keyboardPressed[key];
+            controllerHub.Update();
         }
 
         public TimeSpan DeltaTime { get; private set; }
@@ -91,7 +98,6 @@ namespace ChristmasJumpGame.Engine
         {
             keyboardPressed[keyboardEventArgs.Code] = true;
         }
-
         internal void OnKeyUp(KeyboardEventArgs keyboardEventArgs)
         {
             keyboardPressed[keyboardEventArgs.Code] = false;
@@ -151,6 +157,42 @@ namespace ChristmasJumpGame.Engine
                 return false;
             return !previousPressed && pressed;
         }
+
+        public bool ControllerInputCheck(Guid controller, string inputId) => controllerHub.InputCheck(controller, inputId);
+        public bool ControllerInputCheckPressed(Guid controller, string inputId) => controllerHub.InputCheckPressed(controller, inputId);
+        public bool ControllerInputCheckReleased(Guid controller, string inputId) => controllerHub.InputCheckReleased(controller, inputId);
+
+        public bool ControllerInputCheckAny(string inputId)
+        {
+            foreach (var controller in controllerHub.GetControllers())
+            {
+                if (controllerHub.InputCheck(controller, inputId))
+                    return true;
+            }
+            return false;
+        }
+        public bool ControllerInputCheckAnyPressed(string inputId)
+        {
+            foreach (var controller in controllerHub.GetControllers())
+            {
+                if (controllerHub.InputCheckPressed(controller, inputId))
+                    return true;
+            }
+            return false;
+        }
+        public bool ControllerInputCheckAnyReleased(string inputId)
+        {
+            foreach (var controller in controllerHub.GetControllers())
+            {
+                if (controllerHub.InputCheckReleased(controller, inputId))
+                    return true;
+            }
+            return false;
+        }
+
+        public IEnumerable<Guid> GetInputDevices() => controllerHub.GetControllers();
+
+
 
         public virtual bool IsSolidAt(float x, float y) => false;
     }

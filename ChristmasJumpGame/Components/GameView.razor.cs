@@ -20,6 +20,9 @@ namespace ChristmasJumpGame.Components
         [Parameter]
         public Game? Game { get; set; }
 
+        [Parameter(CaptureUnmatchedValues = true)]
+        public Dictionary<string, object?> Attributes { get; set; }
+
         private readonly Lazy<Task<IJSObjectReference>> moduleTask = new(() => js.InvokeAsync<IJSObjectReference>("import", "/js/gameinterop.js").AsTask());
 
         protected override async Task OnAfterRenderAsync(bool firstRender)

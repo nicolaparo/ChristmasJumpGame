@@ -1,0 +1,143 @@
+﻿@page "/gamecontroller"
+@using ChristmasJumpGame.Engine
+
+@inject GameControllerHub GameControllerHub
+@implements IDisposable
+
+<div style="width: 100vw; height: 100vh; gap: 20%" class="overflow-y-auto overflow-hidden d-flex">
+	<div class="w-100 d-flex flex-column justify-content-around">
+
+		<svg viewBox="-100 -100 200 200">
+
+			<g style="transform: translate(-40px, -40px)"
+			   @ontouchstart='() => SendKeyDownAsync("JUMP")'
+			   @ontouchenter='() => SendKeyDownAsync("JUMP")'
+			   @ontouchleave='() => SendKeyUpAsync("JUMP")'
+			   @ontouchend='() => SendKeyUpAsync("JUMP")'
+			   @ontouchcancel='() => SendKeyUpAsync("JUMP")'
+			   @onpointerdown='() => SendKeyDownAsync("JUMP")'
+			   @onpointerup='() => SendKeyUpAsync("JUMP")'
+			   @onpointercancel='() => SendKeyUpAsync("JUMP")'>
+				<circle cx="0" cy="0" r="40" class="btn btn-primary console-button" />
+				<text x="0" y="0" class="ignore-pointer" text-anchor="middle" font-size="25" dy=".4em" style="fill: white; pointer-events: none;">
+					JUMP
+				</text>
+			</g>
+
+			<g style="transform: translate(40px, 40px)"
+			   @ontouchstart='() => SendKeyDownAsync("RUN")'
+			   @ontouchenter='() => SendKeyDownAsync("RUN")'
+			   @ontouchleave='() => SendKeyUpAsync("RUN")'
+			   @ontouchend='() => SendKeyUpAsync("RUN")'
+			   @ontouchcancel='() => SendKeyUpAsync("RUN")'
+			   @onpointerdown='() => SendKeyDownAsync("RUN")'
+			   @onpointerup='() => SendKeyUpAsync("RUN")'
+			   @onpointercancel='() => SendKeyUpAsync("RUN")'>
+				<circle cx="0" cy="0" r="40" class="btn btn-primary console-button" />
+				<text x="0" y="0" class="ignore-pointer" text-anchor="middle" font-size="25" dy=".4em" style="fill: white; pointer-events: none;">
+					RUN
+				</text>
+			</g>
+
+		</svg>
+	</div>
+
+	<div class="w-100 d-flex flex-column justify-content-around">
+
+		<svg viewBox="-100 -100 200 200">
+
+			@{
+				var buttonSize = 35;
+				var distance = 55;
+			}
+
+			<g style="transform: translate(0, -@(distance)px)"
+			   @ontouchstart='() => SendKeyDownAsync("UP")'
+			   @ontouchenter='() => SendKeyDownAsync("UP")'
+			   @ontouchleave='() => SendKeyUpAsync("UP")'
+			   @ontouchend='() => SendKeyUpAsync("UP")'
+			   @ontouchcancel='() => SendKeyUpAsync("UP")'
+			   @onpointerdown='() => SendKeyDownAsync("UP")'
+			   @onpointerup='() => SendKeyUpAsync("UP")'
+			   @onpointercancel='() => SendKeyUpAsync("UP")'>
+				<circle cx="0" cy="0" r="@buttonSize" class="btn btn-primary console-button" />
+				<text x="0" y="0" class="ignore-pointer" text-anchor="middle" font-size="40" dy=".25em" style="fill: white; pointer-events: none;">
+					▲
+				</text>
+			</g>
+
+			<g style="transform: translate(0, @(distance)px)"
+			   @ontouchstart='() => SendKeyDownAsync("DOWN")'
+			   @ontouchenter='() => SendKeyDownAsync("DOWN")'
+			   @ontouchleave='() => SendKeyUpAsync("DOWN")'
+			   @ontouchend='() => SendKeyUpAsync("DOWN")'
+			   @ontouchcancel='() => SendKeyUpAsync("DOWN")'
+			   @onpointerdown='() => SendKeyDownAsync("DOWN")'
+			   @onpointerup='() => SendKeyUpAsync("DOWN")'
+			   @onpointercancel='() => SendKeyUpAsync("DOWN")'>
+				<circle cx="0" cy="0" r="@buttonSize" class="btn btn-primary console-button" />
+				<text x="0" y="0" class="ignore-pointer" text-anchor="middle" font-size="40" dy=".4em" style="fill: white; pointer-events: none;">
+					▼
+				</text>
+			</g>
+
+			<g style="transform: translate(-@(distance)px, 0)"
+			   @ontouchstart='() => SendKeyDownAsync("LEFT")'
+			   @ontouchenter='() => SendKeyDownAsync("LEFT")'
+			   @ontouchleave='() => SendKeyUpAsync("LEFT")'
+			   @ontouchend='() => SendKeyUpAsync("LEFT")'
+			   @ontouchcancel='() => SendKeyUpAsync("LEFT")'
+			   @onpointerdown='() => SendKeyDownAsync("LEFT")'
+			   @onpointerup='() => SendKeyUpAsync("LEFT")'
+			   @onpointercancel='() => SendKeyUpAsync("LEFT")'>
+				<circle cx="0" cy="0" r="@buttonSize" class="btn btn-primary console-button" />
+				<text x="0" y="0" class="ignore-pointer" text-anchor="middle" font-size="40" dy=".4em" dx="-.1em" style="fill: white; pointer-events: none;">
+					◀
+				</text>
+			</g>
+
+			<g style="transform: translate(@(distance)px, 0)"
+			   @ontouchstart='() => SendKeyDownAsync("RIGHT")'
+			   @ontouchenter='() => SendKeyDownAsync("RIGHT")'
+			   @ontouchleave='() => SendKeyUpAsync("RIGHT")'
+			   @ontouchend='() => SendKeyUpAsync("RIGHT")'
+			   @ontouchcancel='() => SendKeyUpAsync("RIGHT")'
+			   @onpointerdown='() => SendKeyDownAsync("RIGHT")'
+			   @onpointerup='() => SendKeyUpAsync("RIGHT")'
+			   @onpointercancel='() => SendKeyUpAsync("RIGHT")'>
+				<circle cx="0" cy="0" r="@buttonSize" class="btn btn-primary console-button" />
+				<text x="0" y="0" class="ignore-pointer" text-anchor="middle" font-size="40" dy=".4em" dx=".1em" style="fill: white; pointer-events: none;">
+					▶
+				</text>
+			</g>
+		</svg>
+
+	</div>
+</div>
+
+@code {
+
+	public Guid Id { get; } = Guid.NewGuid();
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if(firstRender)
+		{
+			GameControllerHub.RegisterController(Id);
+		}
+	}
+	public void Dispose()
+	{
+		GameControllerHub.UnregisterController(Id);
+	}
+
+	private async Task SendKeyUpAsync(string key)
+	{
+		await GameControllerHub.SendButtonUpAsync(Id, key);
+	}
+	private async Task SendKeyDownAsync(string key)
+	{
+		await GameControllerHub.SendButtonDownAsync(Id, key);
+	}
+
+}
