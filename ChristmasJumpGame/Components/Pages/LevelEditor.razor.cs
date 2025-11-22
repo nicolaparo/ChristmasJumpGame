@@ -1,5 +1,6 @@
 using ChristmasJumpGame.Extensions;
-using ChristmasJumpGame.JumpGame;
+using ChristmasJumpGame.JumpGame.Models;
+using ChristmasJumpGame.JumpGame.Services;
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
 

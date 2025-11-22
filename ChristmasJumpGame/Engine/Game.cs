@@ -38,12 +38,6 @@ namespace ChristmasJumpGame.Engine
             instances.Remove(instance);
         }
 
-        internal async Task Execute2DAsync(Canvas2DContext context)
-        {
-            await OnDrawAsync(context);
-            foreach (var obj in instances)
-                await obj.OnDrawAsync(context);
-        }
         internal async Task ExecuteFrameAsync(RenderingContext context)
         {
             (PreviousMouseX, PreviousMouseY) = (MouseX, MouseY);
@@ -52,12 +46,16 @@ namespace ChristmasJumpGame.Engine
             var instances = this.instances.ToArray();
 
             if (context is Canvas2DContext canvas2DContext)
-                await Execute2DAsync(canvas2DContext);
+            {
+                await OnDrawAsync(canvas2DContext);
+                foreach (var obj in instances)
+                    await obj.OnDrawAsync(canvas2DContext);
+            }
 
             await OnStepAsync();
 
-            for (var i = 0; i < instances.Length; i++)
-                await instances[i].ExecuteStepAsync();
+            foreach (var obj in instances)
+                await obj.ExecuteStepAsync();
 
             foreach (var button in mousePressed.Keys)
                 previousMousePessed[button] = mousePressed[button];
@@ -103,14 +101,14 @@ namespace ChristmasJumpGame.Engine
             keyboardPressed[keyboardEventArgs.Code] = false;
         }
 
-        public bool MouseCheckButton(MouseButton button)
+        public sealed override bool MouseCheckButton(MouseButton button)
         {
             if (button == MouseButton.Any)
                 return Enum.GetValues<MouseButton>().Where(b => b != MouseButton.Any).Any(MouseCheckButton);
 
             return mousePressed.TryGetValue((long)button, out bool pressed) && pressed;
         }
-        public bool MouseCheckButtonReleased(MouseButton button)
+        public sealed override bool MouseCheckButtonReleased(MouseButton button)
         {
             if (button == MouseButton.Any)
                 return Enum.GetValues<MouseButton>().Where(b => b != MouseButton.Any).Any(MouseCheckButtonReleased);
@@ -123,7 +121,7 @@ namespace ChristmasJumpGame.Engine
 
             return !pressed && previousPressed;
         }
-        public bool MouseCheckButtonPressed(MouseButton button)
+        public sealed override bool MouseCheckButtonPressed(MouseButton button)
         {
             if (button == MouseButton.Any)
                 return Enum.GetValues<MouseButton>().Where(b => b != MouseButton.Any).Any(MouseCheckButtonPressed);
@@ -137,11 +135,11 @@ namespace ChristmasJumpGame.Engine
             return !previousPressed && pressed;
         }
 
-        public bool KeyboardCheck(string key)
+        public sealed override bool KeyboardCheck(string key)
         {
             return keyboardPressed.TryGetValue(key, out bool pressed) && pressed;
         }
-        public bool KeyboardCheckReleased(string key)
+        public sealed override bool KeyboardCheckReleased(string key)
         {
             if (!keyboardPressed.TryGetValue(key, out bool pressed))
                 return false;
@@ -149,7 +147,7 @@ namespace ChristmasJumpGame.Engine
                 return false;
             return !pressed && previousPressed;
         }
-        public bool KeyboardCheckPressed(string key)
+        public sealed override bool KeyboardCheckPressed(string key)
         {
             if (!keyboardPressed.TryGetValue(key, out bool pressed))
                 return false;
@@ -158,41 +156,39 @@ namespace ChristmasJumpGame.Engine
             return !previousPressed && pressed;
         }
 
-        public bool ControllerInputCheck(Guid controller, string inputId) => controllerHub.InputCheck(controller, inputId);
-        public bool ControllerInputCheckPressed(Guid controller, string inputId) => controllerHub.InputCheckPressed(controller, inputId);
-        public bool ControllerInputCheckReleased(Guid controller, string inputId) => controllerHub.InputCheckReleased(controller, inputId);
+        public sealed override bool ControllerInputCheck(Guid controller, string inputId) => controllerHub.ControllerInputCheck(controller, inputId);
+        public sealed override bool ControllerInputCheckPressed(Guid controller, string inputId) => controllerHub.ControllerInputCheckPressed(controller, inputId);
+        public sealed override bool ControllerInputCheckReleased(Guid controller, string inputId) => controllerHub.ControllerInputCheckReleased(controller, inputId);
 
-        public bool ControllerInputCheckAny(string inputId)
+        public sealed override bool ControllerInputCheckAny(string inputId)
         {
             foreach (var controller in controllerHub.GetControllers())
             {
-                if (controllerHub.InputCheck(controller, inputId))
+                if (controllerHub.ControllerInputCheck(controller, inputId))
                     return true;
             }
             return false;
         }
-        public bool ControllerInputCheckAnyPressed(string inputId)
+        public sealed override bool ControllerInputCheckAnyPressed(string inputId)
         {
             foreach (var controller in controllerHub.GetControllers())
             {
-                if (controllerHub.InputCheckPressed(controller, inputId))
+                if (controllerHub.ControllerInputCheckPressed(controller, inputId))
                     return true;
             }
             return false;
         }
-        public bool ControllerInputCheckAnyReleased(string inputId)
+        public sealed override bool ControllerInputCheckAnyReleased(string inputId)
         {
             foreach (var controller in controllerHub.GetControllers())
             {
-                if (controllerHub.InputCheckReleased(controller, inputId))
+                if (controllerHub.ControllerInputCheckReleased(controller, inputId))
                     return true;
             }
             return false;
         }
 
-        public IEnumerable<Guid> GetInputDevices() => controllerHub.GetControllers();
-
-
+        public sealed override IEnumerable<Guid> GetControllerInputDevices() => controllerHub.GetControllers();
 
         public virtual bool IsSolidAt(float x, float y) => false;
     }

@@ -1,7 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using ChristmasJumpGame.JumpGame.Models;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-namespace ChristmasJumpGame.JumpGame
+namespace ChristmasJumpGame.JumpGame.Services
 {
     public class LevelRepository
     {

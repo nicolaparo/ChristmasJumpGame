@@ -1,4 +1,5 @@
 ﻿using ChristmasJumpGame.Engine.Abstractions;
+using ChristmasJumpGame.Engine.Assets;
 using System.Reflection;
 
 namespace ChristmasJumpGame.Engine

@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Components;
 using SixLabors.ImageSharp;
 
-namespace ChristmasJumpGame.Engine
+namespace ChristmasJumpGame.Engine.Assets
 {
-    public abstract record ImageAsset : IImageGameAsset
+    public abstract record ImageAsset : IGameAsset
     {
         public ImageAsset(string source)
         {

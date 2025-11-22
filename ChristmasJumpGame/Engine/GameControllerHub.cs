@@ -21,13 +21,13 @@ namespace ChristmasJumpGame.Engine
             inputPressed.Remove(controller);
         }
 
-        public async Task SendButtonUpAsync(Guid controller, string buttonId)
+        public async Task SendControllerInputUpAsync(Guid controller, string inputId)
         {
-            inputPressed[controller][buttonId] = false;
+            inputPressed[controller][inputId] = false;
         }
-        public async Task SendButtonDownAsync(Guid controller, string buttonId)
+        public async Task SendControllerInputDownAsync(Guid controller, string inputId)
         {
-            inputPressed[controller][buttonId] = true;
+            inputPressed[controller][inputId] = true;
         }
 
         public void Update()
@@ -44,12 +44,12 @@ namespace ChristmasJumpGame.Engine
             }
         }
 
-        public bool InputCheck(Guid controller, string buttonId)
+        public bool ControllerInputCheck(Guid controller, string inputId)
         {
             return inputPressed.TryGetValue(controller, out var inputs)
-                && inputs.TryGetValue(buttonId, out bool pressed) && pressed;
+                && inputs.TryGetValue(inputId, out bool pressed) && pressed;
         }
-        public bool InputCheckPressed(Guid controller, string buttonId)
+        public bool ControllerInputCheckPressed(Guid controller, string inputId)
         {
             if (!inputPressed.TryGetValue(controller, out var currentStates))
                 return false;
@@ -57,13 +57,13 @@ namespace ChristmasJumpGame.Engine
             if (!previousInputPressed.TryGetValue(controller, out var previousStates))
                 return false;
 
-            if (currentStates.TryGetValue(buttonId, out bool currentPressed) && currentPressed)
-                if (previousStates.TryGetValue(buttonId, out bool prevPressed) && !prevPressed)
+            if (currentStates.TryGetValue(inputId, out bool currentPressed) && currentPressed)
+                if (previousStates.TryGetValue(inputId, out bool prevPressed) && !prevPressed)
                     return true;
 
             return false;
         }
-        public bool InputCheckReleased(Guid controller, string buttonId)
+        public bool ControllerInputCheckReleased(Guid controller, string inputId)
         {
             if (!inputPressed.TryGetValue(controller, out var currentStates))
                 return true;
@@ -71,8 +71,8 @@ namespace ChristmasJumpGame.Engine
             if (!previousInputPressed.TryGetValue(controller, out var previousStates))
                 return false;
 
-            if (currentStates.TryGetValue(buttonId, out bool currentPressed) && !currentPressed)
-                if (previousStates.TryGetValue(buttonId, out bool prevPressed) && prevPressed)
+            if (currentStates.TryGetValue(inputId, out bool currentPressed) && !currentPressed)
+                if (previousStates.TryGetValue(inputId, out bool prevPressed) && prevPressed)
                     return true;
 
             return false;

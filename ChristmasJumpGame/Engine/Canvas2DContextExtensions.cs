@@ -1,8 +1,9 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
+using ChristmasJumpGame.Engine.Assets;
 
 namespace ChristmasJumpGame.Engine
 {
-    public static class SpriteDrawExtensions
+    public static class Canvas2DContextExtensions
     {
         public static async ValueTask DrawSpriteAsync(this Canvas2DContext context, SpriteAsset sprite, int imageIndex, double x, double y, double width, double height)
         {

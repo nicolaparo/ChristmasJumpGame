@@ -1,28 +1,26 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
 using ChristmasJumpGame.Engine;
+using ChristmasJumpGame.JumpGame.Assets;
+using ChristmasJumpGame.JumpGame.Models;
 using ChristmasJumpGame.JumpGame.Objects;
+using ChristmasJumpGame.JumpGame.Services;
 
 namespace ChristmasJumpGame.JumpGame
 {
-    public record BoxImage() : ImageAsset("/res/box.png", 32, 32);
-    public record TilesetImage() : ImageAsset("/res/tileset.png");
-    public record PlayerSprite() : SpriteAsset("/res/elf-green.png", 48, 48, 4, 4, 24, 24);
-    public record GiftSprite() : SpriteAsset("/res/gift.png", 32, 32);
-
     public class ElfJumpGame : Game
     {
         private GameObject? player;
         private readonly LevelRepository levelRepository;
-        private readonly TilesetImage tileset;
+        private readonly TilesetImageAsset tileset;
 
-        public ElfJumpGame(IServiceProvider serviceProvider, LevelRepository levelRepository, TilesetImage tileset) : base(serviceProvider)
+        public ElfJumpGame(IServiceProvider serviceProvider, LevelRepository levelRepository, TilesetImageAsset tileset) : base(serviceProvider)
         {
             this.levelRepository = levelRepository;
             this.tileset = tileset;
             this.RoomWidth = 320 * 32;
         }
 
-        public Level Level { get; private set; }
+        public Level? Level { get; private set; }
 
         public override async ValueTask OnStartAsync()
         {
@@ -62,6 +60,9 @@ namespace ChristmasJumpGame.JumpGame
             await context.SetFillStyleAsync("skyblue");
             await context.FillRectAsync(0, 0, RoomWidth, RoomHeight);
 
+            if (Level is null)
+                return;
+
             foreach (var layer in Level.Tiles.Keys.OrderBy(k => k))
             {
                 foreach (var tile in Level.GetTiles(layer))
@@ -82,6 +83,9 @@ namespace ChristmasJumpGame.JumpGame
 
         private int GetTileAt(float x, float y)
         {
+            if (Level is null)
+                return TileIds.None;
+
             return Level.GetTileAt(LevelLayer.Level, (int)x / 32, (int)y / 32);
         }
 
@@ -98,8 +102,6 @@ namespace ChristmasJumpGame.JumpGame
                 return false;
 
             return true;
-
-            //return GetTileAt(x, y) != TileIds.None;
         }
     }
 

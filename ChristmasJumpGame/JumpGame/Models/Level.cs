@@ -1,23 +1,5 @@
-﻿namespace ChristmasJumpGame.JumpGame
+﻿namespace ChristmasJumpGame.JumpGame.Models
 {
-    public static class TileIds
-    {
-        public const int None = -1;
-    }
-
-    public enum LevelLayer
-    {
-        Background = -100,
-        Level = 0,
-        Foreground = 100,
-    }
-
-    public record LevelTile
-    {
-        public int X { get; init; }
-        public int Y { get; init; }
-        public int Id { get; init; }
-    }
     public class Level
     {
         public string? Name { get; set; }

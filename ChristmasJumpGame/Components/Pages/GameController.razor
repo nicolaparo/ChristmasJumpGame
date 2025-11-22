@@ -133,11 +133,11 @@
 
 	private async Task SendKeyUpAsync(string key)
 	{
-		await GameControllerHub.SendButtonUpAsync(Id, key);
+		await GameControllerHub.SendControllerInputUpAsync(Id, key);
 	}
 	private async Task SendKeyDownAsync(string key)
 	{
-		await GameControllerHub.SendButtonDownAsync(Id, key);
+		await GameControllerHub.SendControllerInputDownAsync(Id, key);
 	}
 
 }

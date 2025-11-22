@@ -1,4 +1,5 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
+using ChristmasJumpGame.Engine.Assets;
 
 namespace ChristmasJumpGame.Engine
 {
@@ -75,23 +76,6 @@ namespace ChristmasJumpGame.Engine
                      Y + BoundingBox.Y >= other.Y + other.BoundingBox.Y + other.BoundingBox.Height);
         }
 
-        public bool MouseCheckButton(MouseButton button) => Game.MouseCheckButton(button);
-        public bool MouseCheckButtonReleased(MouseButton button) => Game.MouseCheckButtonReleased(button);
-        public bool MouseCheckButtonPressed(MouseButton button) => Game.MouseCheckButtonPressed(button);
-
-        public bool KeyboardCheck(string key) => Game.KeyboardCheck(key);
-        public bool KeyboardCheckReleased(string key) => Game.KeyboardCheckReleased(key);
-        public bool KeyboardCheckPressed(string key) => Game.KeyboardCheckPressed(key);
-
-        public IEnumerable<Guid> GetControllerInputDevices() => Game.GetInputDevices();
-
-        public bool ControllerInputCheck(Guid controller, string inputId) => Game.ControllerInputCheck(controller, inputId);
-        public bool ControllerInputCheckPressed(Guid controller, string inputId) => Game.ControllerInputCheckPressed(controller, inputId);
-        public bool ControllerInputCheckReleased(Guid controller, string inputId) => Game.ControllerInputCheckReleased(controller, inputId);
-        public bool ControllerInputCheckAny(string inputId) => Game.ControllerInputCheckAny(inputId);
-        public bool ControllerInputCheckAnyPressed(string inputId) => Game.ControllerInputCheckAnyPressed(inputId);
-        public bool ControllerInputCheckAnyReleased(string inputId) => Game.ControllerInputCheckAnyReleased(inputId);
-
         public bool MoveOutsideSolid(float deltaX, float deltaY, float resolution = 1f)
         {
             var direction = Angle.Atan2(-deltaY, deltaX);
@@ -163,5 +147,22 @@ namespace ChristmasJumpGame.Engine
 
             return true;
         }
+
+        public sealed override bool MouseCheckButton(MouseButton button) => Game.MouseCheckButton(button);
+        public sealed override bool MouseCheckButtonReleased(MouseButton button) => Game.MouseCheckButtonReleased(button);
+        public sealed override bool MouseCheckButtonPressed(MouseButton button) => Game.MouseCheckButtonPressed(button);
+
+        public sealed override bool KeyboardCheck(string key) => Game.KeyboardCheck(key);
+        public sealed override bool KeyboardCheckReleased(string key) => Game.KeyboardCheckReleased(key);
+        public sealed override bool KeyboardCheckPressed(string key) => Game.KeyboardCheckPressed(key);
+
+        public sealed override IEnumerable<Guid> GetControllerInputDevices() => Game.GetControllerInputDevices();
+
+        public sealed override bool ControllerInputCheck(Guid controller, string inputId) => Game.ControllerInputCheck(controller, inputId);
+        public sealed override bool ControllerInputCheckPressed(Guid controller, string inputId) => Game.ControllerInputCheckPressed(controller, inputId);
+        public sealed override bool ControllerInputCheckReleased(Guid controller, string inputId) => Game.ControllerInputCheckReleased(controller, inputId);
+        public sealed override bool ControllerInputCheckAny(string inputId) => Game.ControllerInputCheckAny(inputId);
+        public sealed override bool ControllerInputCheckAnyPressed(string inputId) => Game.ControllerInputCheckAnyPressed(inputId);
+        public sealed override bool ControllerInputCheckAnyReleased(string inputId) => Game.ControllerInputCheckAnyReleased(inputId);
     }
 }

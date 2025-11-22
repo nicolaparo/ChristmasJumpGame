@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ChristmasJumpGame.Engine
+namespace ChristmasJumpGame.Engine.Assets
 {
 
     public abstract record SpriteAsset : ImageAsset, IGameAsset

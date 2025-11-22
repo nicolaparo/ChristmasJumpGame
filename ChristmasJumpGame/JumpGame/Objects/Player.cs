@@ -1,10 +1,11 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
 using ChristmasJumpGame.Engine;
+using ChristmasJumpGame.JumpGame.Sprites;
 
 namespace ChristmasJumpGame.JumpGame.Objects
 {
 
-    public class Player(ElfJumpGame game, PlayerSprite sprite) : GameObject(game)
+    public class Player(ElfJumpGame game, PlayerSpriteAsset sprite) : GameObject(game)
     {
         public override void OnCreate()
         {

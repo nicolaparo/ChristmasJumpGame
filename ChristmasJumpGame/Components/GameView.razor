@@ -1,10 +1,11 @@
 ﻿@using Blazor.Extensions.Canvas
 @using Blazor.Extensions
-@using ChristmasJumpGame.Engine.Abstractions
+@using ChristmasJumpGame.Engine
+@using ChristmasJumpGame.Engine.Assets
 
 @foreach (var asset in assets)
 {
-	if (asset is IImageGameAsset imageGameAsset)
+	if (asset is ImageAsset imageGameAsset)
 	{
 		<img src="@asset.Source" @ref=imageGameAsset.ElementReference style="display:none;" loading="eager" />
 	}
@@ -27,12 +28,6 @@
 				</div>
 			</foreignObject>
 		</svg>
-
-		@* <div style="width: @(Game.ViewWidth)px; height: @(Game.ViewHeight)px; position: relative; overflow: hidden;">
-			<div style="left: @(-Game.ViewX)px; top:@(-Game.ViewY)px; position: absolute; overflow: visible;">
-				<BECanvas @ref=canvas Width="Game.RoomWidth" Height="Game.RoomHeight" />
-			</div>
-		</div> *@
 	}
 </div>
 
