@@ -1,5 +1,5 @@
 using ChristmasJumpGame.Components;
-using ChristmasJumpGame.Engine;
+using BlazorGameEngine;
 using ChristmasJumpGame.JumpGame;
 using ChristmasJumpGame.JumpGame.Services;
 

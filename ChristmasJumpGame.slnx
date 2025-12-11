@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="BlazorGameEngine/BlazorGameEngine.csproj" Id="72d10917-e52f-4477-8b92-1b84d60c4018" />
   <Project Path="ChristmasJumpGame/ChristmasJumpGame.csproj" />
+  <Project Path="DemoGame/DemoGame.csproj" Id="fa483be5-8a88-43f4-9461-4d5e99ec3496" />
 </Solution>

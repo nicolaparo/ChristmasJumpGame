@@ -1,5 +1,5 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
-using ChristmasJumpGame.Engine;
+using BlazorGameEngine;
 using ChristmasJumpGame.JumpGame.Assets;
 using ChristmasJumpGame.JumpGame.Models;
 using ChristmasJumpGame.JumpGame.Objects;
@@ -111,7 +111,7 @@ namespace ChristmasJumpGame.JumpGame
         public static void RegisterJumpGameAssets(this IServiceCollection services)
         {
             services.AddGame<ElfJumpGame>();
-            services.AddGameResources();
+            services.AddGameResources(typeof(ElfJumpGame).Assembly);
         }
     }
 

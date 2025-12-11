@@ -1,5 +1,5 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
-using ChristmasJumpGame.Engine;
+using BlazorGameEngine;
 using ChristmasJumpGame.JumpGame.Sprites;
 
 namespace ChristmasJumpGame.JumpGame.Objects

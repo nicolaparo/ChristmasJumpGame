@@ -1,4 +1,4 @@
-﻿using ChristmasJumpGame.Engine.Assets;
+﻿using BlazorGameEngine.Assets;
 
 namespace ChristmasJumpGame.JumpGame.Sprites
 {
